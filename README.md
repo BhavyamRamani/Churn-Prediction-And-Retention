@@ -137,6 +137,3 @@ The **Logistic Regression** model achieved strong recall, making it ideal when f
 ````
 
 ---
-
-
-Would you like me to tailor this README for **your actual folder structure** (for example, if you already have specific model names, file names, or Streamlit features)? I can also add a section describing your **report chapters (advantages, limitations, applications, etc.)** if it’s part of your submission.
