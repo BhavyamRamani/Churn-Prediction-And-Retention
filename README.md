@@ -1,14 +1,13 @@
-````{"variant":"standard","title":"Churn Analysis Project README","id":"72651"}
-🧠 Customer Churn Analysis
+# 🧠 Customer Churn Analysis
 
-📋 Overview
+## 📋 Overview
 This project focuses on predicting **customer churn** — i.e., identifying customers who are likely to stop using a company’s service. The goal is to build a machine learning pipeline that preprocesses raw customer data, trains various models, and evaluates their performance using key classification metrics.
 
 The pipeline includes **data cleaning, encoding, scaling, feature engineering, model training, evaluation, and deployment preparation**. The final model can be used to identify at-risk customers and help the business improve retention strategies.
 
 ---
 
-📂 Project Structure
+# 📂 Project Structure
 ```
 churn-analysis/
 │
