@@ -134,5 +134,5 @@ The **Logistic Regression** model achieved strong recall, making it ideal when f
 ## 👤 Author
 **Bhavyam Ramani
 ````
-
 ---
+\
