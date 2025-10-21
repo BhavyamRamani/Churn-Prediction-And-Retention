@@ -1,5 +1,3 @@
----
-
 ````{"variant":"standard","title":"Churn Analysis Project README","id":"72651"}
 # 🧠 Customer Churn Analysis
 
