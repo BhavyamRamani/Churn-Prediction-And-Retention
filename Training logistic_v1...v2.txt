@@ -1,0 +1,25 @@
+Training logistic_v1...
+logistic_v1 -> Accuracy: 0.7975, Precision: 0.646, Recall: 0.5214, ROC_AUC: 0.7092
+✅ Saved logistic_v1 with pipeline at models/logistic_v1.pkl
+
+Training decision_tree_v1...
+decision_tree_v1 -> Accuracy: 0.7143, Precision: 0.4641, Recall: 0.5071, ROC_AUC: 0.648
+✅ Saved decision_tree_v1 with pipeline at models/decision_tree_v1.pkl
+
+Training random_forest_v1...
+random_forest_v1 -> Accuracy: 0.7654, Precision: 0.5702, Recall: 0.4643, ROC_AUC: 0.6691
+✅ Saved random_forest_v1 with pipeline at models/random_forest_v1.pkl
+
+Training xgboost_v1...
+C:\Users\T8569\OneDrive - LTIMindtree\Desktop\churn-llm-nlp\.venv\Lib\site-packages\xgboost\training.py:183: UserWarning: [11:25:20] WARNING: C:\actions-runner\_work\xgboost\xgboost\src\learner.cc:738:
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+xgboost_v1 -> Accuracy: 0.7692, Precision: 0.5763, Recall: 0.4857, ROC_AUC: 0.6785
+✅ Saved xgboost_v1 with pipeline at models/xgboost_v1.pkl
+
+Training catboost_v1...
+catboost_v1 -> Accuracy: 0.7909, Precision: 0.6245, Recall: 0.5286, ROC_AUC: 0.707
+✅ Saved catboost_v1 with pipeline at models/catboost_v1.pkl
+
+All v1 models trained and saved successfully.
