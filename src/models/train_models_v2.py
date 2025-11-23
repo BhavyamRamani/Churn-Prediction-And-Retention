@@ -1,4 +1,5 @@
 # train_models_v2.py
+import os
 import pandas as pd
 import numpy as np
 import joblib
@@ -15,37 +16,35 @@ from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, confusion_matrix, ConfusionMatrixDisplay
 
 # ===============================
-# Load data
+# Paths and load processed data
 # ===============================
-data_path = "C:/Users/T8569/Downloads/WA_Fn-UseC_-Telco-Customer-Churn.csv"
-data = pd.read_csv(data_path)
+PROCESSED_DIR = "data/processed"
+MODEL_DIR = "models"
 
-target = 'Churn'
-y = data[target].map({'Yes':1, 'No':0})
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-features = ['Dependents', 'tenure', 'InternetService', 'OnlineSecurity', 
-            'OnlineBackup', 'DeviceProtection', 'TechSupport', 
-            'StreamingTV', 'StreamingMovies', 'Contract', 
-            'PaperlessBilling', 'PaymentMethod', 'MonthlyCharges']
+# Load cleaned / feature-engineered splits
+X_train = pd.read_csv(os.path.join(PROCESSED_DIR, "X_train_fe.csv"))
+X_test = pd.read_csv(os.path.join(PROCESSED_DIR, "X_test_fe.csv"))
+y_train = pd.read_csv(os.path.join(PROCESSED_DIR, "y_train_fe.csv")).squeeze()
+y_test = pd.read_csv(os.path.join(PROCESSED_DIR, "y_test_fe.csv")).squeeze()
 
-X = data[features]
+print(f"✅ Loaded processed data for v2: {X_train.shape}, {X_test.shape}")
 
 # ===============================
-# Preprocessing
+# Preprocessing (on processed X)
 # ===============================
-categorical_features = X.select_dtypes(include='object').columns.tolist()
-numerical_features = X.select_dtypes(include=['int64','float64']).columns.tolist()
+categorical_features = X_train.select_dtypes(include='object').columns.tolist()
+numerical_features = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
 
 preprocessor = ColumnTransformer(transformers=[
     ('num', StandardScaler(), numerical_features),
     ('cat', OneHotEncoder(drop='first'), categorical_features)
 ])
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42, stratify=y)
-
 pipeline = Pipeline([
     ('preprocess', preprocessor),
-    ('pca', PCA(n_components=min(13, len(numerical_features) + len(categorical_features)-1)))
+    ('pca', PCA(n_components=min(13, len(numerical_features) + len(categorical_features) - 1)))
 ])
 
 X_train_pca = pipeline.fit_transform(X_train)
@@ -102,7 +101,7 @@ for name, mp in models_params.items():
     disp.plot()
     
     # Save best model + pipeline
-    model_path = f"models/{name}.pkl"
+    model_path = os.path.join(MODEL_DIR, f"{name}.pkl")
     joblib.dump({'model': best_model, 'pipeline': pipeline}, model_path)
     print(f"✅ Saved tuned {name} with pipeline at {model_path}\n")
 
