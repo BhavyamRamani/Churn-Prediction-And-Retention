@@ -1,4 +1,5 @@
 # train_models_v1.py
+import os
 import pandas as pd
 import numpy as np
 import joblib
@@ -15,47 +16,45 @@ from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
 
 # ===============================
-# Load original dataset
+# Paths (same style as v2)
 # ===============================
-data_path = "C:/Users/T8569/Downloads/WA_Fn-UseC_-Telco-Customer-Churn.csv"
-data = pd.read_csv(data_path)
+PROCESSED_DIR = "data/processed"
+MODEL_DIR = "models"
 
-# Target
-target = 'Churn'
-y = data[target].map({'Yes':1, 'No':0})
-
-# Features to use (subset, like in PCA code)
-features = ['Dependents', 'tenure', 'InternetService', 'OnlineSecurity', 
-            'OnlineBackup', 'DeviceProtection', 'TechSupport', 
-            'StreamingTV', 'StreamingMovies', 'Contract', 
-            'PaperlessBilling', 'PaymentMethod', 'MonthlyCharges']
-
-X = data[features]
+os.makedirs(MODEL_DIR, exist_ok=True)
 
 # ===============================
-# Preprocessing
+# Load processed train/test data
+# (already cleaned & preprocessed)
 # ===============================
-# Identify categorical and numerical features
-categorical_features = X.select_dtypes(include='object').columns.tolist()
-numerical_features = X.select_dtypes(include=['int64','float64']).columns.tolist()
+X_train = pd.read_csv(os.path.join(PROCESSED_DIR, "X_train_fe.csv"))
+X_test = pd.read_csv(os.path.join(PROCESSED_DIR, "X_test_fe.csv"))
+y_train = pd.read_csv(os.path.join(PROCESSED_DIR, "y_train_fe.csv")).squeeze()
+y_test = pd.read_csv(os.path.join(PROCESSED_DIR, "y_test_fe.csv")).squeeze()
 
-# Column transformer
-preprocessor = ColumnTransformer(transformers=[
-    ('num', StandardScaler(), numerical_features),
-    ('cat', OneHotEncoder(drop='first'), categorical_features)
-])
+print(f"✅ Loaded processed data for v1: {X_train.shape}, {X_test.shape}")
 
 # ===============================
-# Train/test split
+# Preprocessing (on processed data)
 # ===============================
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42, stratify=y)
+# Identify categorical and numerical features from processed X
+categorical_features = X_train.select_dtypes(include='object').columns.tolist()
+numerical_features = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', StandardScaler(), numerical_features),
+        ('cat', OneHotEncoder(drop='first'), categorical_features)
+    ]
+)
 
 # ===============================
 # Apply preprocessing and PCA
 # ===============================
 pipeline = Pipeline([
     ('preprocess', preprocessor),
-    ('pca', PCA(n_components=min(13, len(numerical_features) + len(categorical_features)-1)))  # keep 13 as in previous PCA
+    # keep n_components logic similar to before
+    ('pca', PCA(n_components=min(13, len(numerical_features) + len(categorical_features) - 1)))
 ])
 
 X_train_pca = pipeline.fit_transform(X_train)
@@ -78,18 +77,18 @@ models = {
 for name, model in models.items():
     print(f"Training {name}...")
     model.fit(X_train_pca, y_train)
-    
+
     # Evaluate
     y_pred = model.predict(X_test_pca)
-    acc = round(accuracy_score(y_test, y_pred),4)
-    prec = round(precision_score(y_test, y_pred),4)
-    rec = round(recall_score(y_test, y_pred),4)
-    roc = round(roc_auc_score(y_test, y_pred),4)
-    
+    acc = round(accuracy_score(y_test, y_pred), 4)
+    prec = round(precision_score(y_test, y_pred), 4)
+    rec = round(recall_score(y_test, y_pred), 4)
+    roc = round(roc_auc_score(y_test, y_pred), 4)
+
     print(f"{name} -> Accuracy: {acc}, Precision: {prec}, Recall: {rec}, ROC_AUC: {roc}")
-    
-    # Save model
-    model_path = f"models/{name}.pkl"
+
+    # Save model + pipeline
+    model_path = os.path.join(MODEL_DIR, f"{name}.pkl")
     joblib.dump({'model': model, 'pipeline': pipeline}, model_path)
     print(f"✅ Saved {name} with pipeline at {model_path}\n")
 
