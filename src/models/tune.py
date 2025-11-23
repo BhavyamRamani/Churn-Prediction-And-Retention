@@ -34,7 +34,7 @@ def evaluate_model(name, model, X_test, y_test):
 
 
 # -----------------------------
-# Logistic Regression (v2)
+# Logistic Regression (v3)
 # -----------------------------
 log_reg = LogisticRegression(max_iter=500, solver="liblinear")
 log_reg_params = {
@@ -46,13 +46,13 @@ grid_lr = GridSearchCV(log_reg, log_reg_params, cv=5, scoring="f1", n_jobs=-1, v
 grid_lr.fit(X_train, y_train)
 
 best_lr = grid_lr.best_estimator_
-metrics_lr = evaluate_model("LogisticRegression_v2", best_lr, X_test, y_test)
+metrics_lr = evaluate_model("LogisticRegression_v3", best_lr, X_test, y_test)
 
 joblib.dump(best_lr, os.path.join(MODEL_DIR, "logistic_v2.pkl"))
 print("✅ Saved logistic_v2.pkl")
 
 # -----------------------------
-# Random Forest (v2)
+# Random Forest (v3)
 # -----------------------------
 rf = RandomForestClassifier(random_state=42)
 rf_params = {
@@ -65,13 +65,13 @@ grid_rf = RandomizedSearchCV(rf, rf_params, cv=5, scoring="f1", n_jobs=-1, n_ite
 grid_rf.fit(X_train, y_train)
 
 best_rf = grid_rf.best_estimator_
-metrics_rf = evaluate_model("RandomForest_v2", best_rf, X_test, y_test)
+metrics_rf = evaluate_model("RandomForest_v3", best_rf, X_test, y_test)
 
-joblib.dump(best_rf, os.path.join(MODEL_DIR, "rf_v2.pkl"))
-print("✅ Saved rf_v2.pkl")
+joblib.dump(best_rf, os.path.join(MODEL_DIR, "rf_v3.pkl"))
+print("✅ Saved rf_v3.pkl")
 
 # -----------------------------
-# XGBoost (v2)
+# XGBoost (v3)
 # -----------------------------
 xgb = XGBClassifier(use_label_encoder=False, eval_metric="logloss", random_state=42)
 xgb_params = {
@@ -85,21 +85,21 @@ grid_xgb = RandomizedSearchCV(xgb, xgb_params, cv=5, scoring="f1", n_jobs=-1, n_
 grid_xgb.fit(X_train, y_train)
 
 best_xgb = grid_xgb.best_estimator_
-metrics_xgb = evaluate_model("XGBoost_v2", best_xgb, X_test, y_test)
+metrics_xgb = evaluate_model("XGBoost_v3", best_xgb, X_test, y_test)
 
-joblib.dump(best_xgb, os.path.join(MODEL_DIR, "xgb_v2.pkl"))
-print("✅ Saved xgb_v2.pkl")
+joblib.dump(best_xgb, os.path.join(MODEL_DIR, "xgb_v3.pkl"))
+print("✅ Saved xgb_v3.pkl")
 
 # -----------------------------
 # Compare and Save Best Model
 # -----------------------------
 all_results = {
-    "Logistic_v2": metrics_lr,
-    "RandomForest_v2": metrics_rf,
-    "XGBoost_v2": metrics_xgb,
+    "Logistic_v3": metrics_lr,
+    "RandomForest_v3": metrics_rf,
+    "XGBoost_v3": metrics_xgb,
 }
 
-print("\n✅ Final Comparison (v2 tuned models):")
+print("\n✅ Final Comparison (v3 tuned models):")
 for model, metrics in all_results.items():
     print(f"{model}: {metrics}")
 
