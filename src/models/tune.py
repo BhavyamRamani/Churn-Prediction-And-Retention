@@ -33,9 +33,8 @@ def evaluate_model(name, model, X_test, y_test):
     return {"accuracy": acc, "precision": prec, "recall": rec, "f1": f1}
 
 
-# -----------------------------
-# Logistic Regression (v3)
-# -----------------------------
+
+
 log_reg = LogisticRegression(max_iter=500, solver="liblinear")
 log_reg_params = {
     "C": [0.01, 0.1, 1, 10],
@@ -51,9 +50,8 @@ metrics_lr = evaluate_model("LogisticRegression_v3", best_lr, X_test, y_test)
 joblib.dump(best_lr, os.path.join(MODEL_DIR, "logistic_v2.pkl"))
 print("✅ Saved logistic_v3.pkl")
 
-# -----------------------------
-# Random Forest (v3)
-# -----------------------------
+
+
 rf = RandomForestClassifier(random_state=42)
 rf_params = {
     "n_estimators": [100, 200, 500],
@@ -70,9 +68,8 @@ metrics_rf = evaluate_model("RandomForest_v3", best_rf, X_test, y_test)
 joblib.dump(best_rf, os.path.join(MODEL_DIR, "rf_v3.pkl"))
 print("✅ Saved rf_v3.pkl")
 
-# -----------------------------
-# XGBoost (v3)
-# -----------------------------
+
+
 xgb = XGBClassifier(use_label_encoder=False, eval_metric="logloss", random_state=42)
 xgb_params = {
     "n_estimators": [100, 200],
@@ -90,9 +87,8 @@ metrics_xgb = evaluate_model("XGBoost_v3", best_xgb, X_test, y_test)
 joblib.dump(best_xgb, os.path.join(MODEL_DIR, "xgb_v3.pkl"))
 print("✅ Saved xgb_v3.pkl")
 
-# -----------------------------
-# Compare and Save Best Model
-# -----------------------------
+
+
 all_results = {
     "Logistic_v3": metrics_lr,
     "RandomForest_v3": metrics_rf,
