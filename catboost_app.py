@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -14,18 +15,29 @@ st.set_page_config(page_title="Customer Churn Dashboard", layout="wide")
 st.title("Customer Churn Prediction & Analysis")
 
 # -------------------------------
-# Load dataset
+# Load processed dataset (same as v2 training)
 # -------------------------------
-data = pd.read_csv("C:/Users/T8569/Downloads/WA_Fn-UseC_-Telco-Customer-Churn.csv")
+PROCESSED_DIR = "data/processed"
 
-# Drop customerID
-data = data.drop(columns=['customerID'])
+X_train = pd.read_csv(os.path.join(PROCESSED_DIR, "X_train_fe.csv"))
+X_test = pd.read_csv(os.path.join(PROCESSED_DIR, "X_test_fe.csv"))
+y_train = pd.read_csv(os.path.join(PROCESSED_DIR, "y_train_fe.csv")).squeeze()
+y_test = pd.read_csv(os.path.join(PROCESSED_DIR, "y_test_fe.csv")).squeeze()
+
+# Combine train + test back into one dataset for analysis/dashboard
+data = pd.concat([X_train, X_test], ignore_index=True)
+data["Churn"] = pd.concat([y_train, y_test], ignore_index=True)
+
+# Drop customerID if present
+if "customerID" in data.columns:
+    data = data.drop(columns=["customerID"])
 
 # Define features
-features = data.columns.drop('Churn')
-categorical_cols = data.select_dtypes(include=['object']).columns.tolist()
-categorical_cols.remove('Churn')
-numeric_cols = data.select_dtypes(include=['int64', 'float64']).columns.tolist()
+features = data.columns.drop("Churn")
+categorical_cols = data.select_dtypes(include=["object"]).columns.tolist()
+if "Churn" in categorical_cols:
+    categorical_cols.remove("Churn")
+numeric_cols = data.select_dtypes(include=["int64", "float64", "float32", "int32"]).columns.tolist()
 
 # Fill missing numeric values
 data[numeric_cols] = data[numeric_cols].fillna(0)
@@ -42,7 +54,7 @@ cat_model.load_model("models/catboost_v3.cbm")
 X_scaled = StandardScaler().fit_transform(data[features])
 kmeans = KMeans(n_clusters=3, random_state=42)
 clusters = kmeans.fit_predict(X_scaled)
-data['Cluster'] = clusters
+data["Cluster"] = clusters
 cluster_map = {
     0: "Low-value / Price-sensitive",
     1: "Medium-value / At-risk",
@@ -53,11 +65,19 @@ cluster_map = {
 # Kaplan-Meier survival curve
 # -------------------------------
 kmf = KaplanMeierFitter()
-T = data['tenure']
-E = (data['Churn'] == 'Yes').astype(int)
+T = data["tenure"]
+
+# Handle both numeric 0/1 and string 'Yes'/'No' churn formats
+E = data["Churn"]
+if E.dtype == "O":
+    E = (E == "Yes").astype(int)
+else:
+    # assume already 0/1
+    E = E.astype(int)
+
 kmf.fit(T, event_observed=E)
 
-km_fig, km_ax = plt.subplots(figsize=(6,4))
+km_fig, km_ax = plt.subplots(figsize=(6, 4))
 kmf.plot_survival_function(ax=km_ax)
 km_ax.set_xlabel("Tenure (months)")
 km_ax.set_ylabel("Retention Probability")
@@ -74,10 +94,10 @@ input_col1, input_col2 = st.columns(2)
 with input_col1:
     tenure = st.slider("Tenure (months)", 0, 100, 12)
     monthly_charges = st.slider("Monthly Charges", 0.0, 1000.0, 70.0)
-    total_charges = st.slider("Total Charges", 0.0, 10000.0, tenure*monthly_charges)
+    total_charges = st.slider("Total Charges", 0.0, 10000.0, tenure * monthly_charges)
 with input_col2:
     gender = st.selectbox("Gender", ["Male", "Female"])
-    senior = st.selectbox("Senior Citizen", ["0","1"])
+    senior = st.selectbox("Senior Citizen", ["0", "1"])
     partner = st.selectbox("Partner", ["Yes", "No"])
     dependents = st.selectbox("Dependents", ["Yes", "No"])
     phone_service = st.selectbox("Phone Service", ["Yes", "No"])
@@ -91,29 +111,32 @@ with input_col2:
     streaming_movies = st.selectbox("Streaming Movies", ["Yes", "No", "No internet service"])
     contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
     paperless = st.selectbox("Paperless Billing", ["Yes", "No"])
-    payment_method = st.selectbox("Payment Method", ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"])
+    payment_method = st.selectbox(
+        "Payment Method",
+        ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"]
+    )
 
 # Build user dataframe
 user_df = pd.DataFrame({
-    'gender': [gender],
-    'SeniorCitizen': [int(senior)],
-    'Partner': [partner],
-    'Dependents': [dependents],
-    'tenure': [tenure],
-    'PhoneService': [phone_service],
-    'MultipleLines': [multiple_lines],
-    'InternetService': [internet_service],
-    'OnlineSecurity': [online_security],
-    'OnlineBackup': [online_backup],
-    'DeviceProtection': [device_protection],
-    'TechSupport': [tech_support],
-    'StreamingTV': [streaming_tv],
-    'StreamingMovies': [streaming_movies],
-    'Contract': [contract],
-    'PaperlessBilling': [paperless],
-    'PaymentMethod': [payment_method],
-    'MonthlyCharges': [monthly_charges],
-    'TotalCharges': [total_charges]
+    "gender": [gender],
+    "SeniorCitizen": [int(senior)],
+    "Partner": [partner],
+    "Dependents": [dependents],
+    "tenure": [tenure],
+    "PhoneService": [phone_service],
+    "MultipleLines": [multiple_lines],
+    "InternetService": [internet_service],
+    "OnlineSecurity": [online_security],
+    "OnlineBackup": [online_backup],
+    "DeviceProtection": [device_protection],
+    "TechSupport": [tech_support],
+    "StreamingTV": [streaming_tv],
+    "StreamingMovies": [streaming_movies],
+    "Contract": [contract],
+    "PaperlessBilling": [paperless],
+    "PaymentMethod": [payment_method],
+    "MonthlyCharges": [monthly_charges],
+    "TotalCharges": [total_charges]
 })
 
 # -------------------------------
@@ -159,13 +182,15 @@ st.pyplot(plt.gcf())
 # Compare user vs cluster averages
 # -------------------------------
 st.subheader("User vs Segment Comparison")
-cluster_data = data[data['Cluster']==user_cluster]
+cluster_data = data[data["Cluster"] == user_cluster]
 if not cluster_data.empty:
     cluster_avg = cluster_data[features].mean().reset_index()
-    cluster_avg.columns = ['Feature', 'Average']
-    user_values = pd.DataFrame({'Feature': features, 'Average': user_df.iloc[0][features].values})
-    comparison_chart = alt.Chart(cluster_avg).mark_bar(color='lightblue').encode(x='Feature', y='Average') + \
-                       alt.Chart(user_values).mark_bar(color='orange').encode(x='Feature', y='Average')
+    cluster_avg.columns = ["Feature", "Average"]
+    user_values = pd.DataFrame({"Feature": features, "Average": user_df.iloc[0][features].values})
+    comparison_chart = (
+        alt.Chart(cluster_avg).mark_bar(color="lightblue").encode(x="Feature", y="Average") +
+        alt.Chart(user_values).mark_bar(color="orange").encode(x="Feature", y="Average")
+    )
     st.altair_chart(comparison_chart, use_container_width=True)
 else:
     st.info("No cluster data available for comparison.")
