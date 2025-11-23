@@ -49,7 +49,7 @@ best_lr = grid_lr.best_estimator_
 metrics_lr = evaluate_model("LogisticRegression_v3", best_lr, X_test, y_test)
 
 joblib.dump(best_lr, os.path.join(MODEL_DIR, "logistic_v2.pkl"))
-print("✅ Saved logistic_v2.pkl")
+print("✅ Saved logistic_v3.pkl")
 
 # -----------------------------
 # Random Forest (v3)
