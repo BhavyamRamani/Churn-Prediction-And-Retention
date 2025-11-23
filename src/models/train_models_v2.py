@@ -15,9 +15,7 @@ from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, confusion_matrix, ConfusionMatrixDisplay
 
-# ===============================
-# Paths and load processed data
-# ===============================
+
 PROCESSED_DIR = "data/processed"
 MODEL_DIR = "models"
 
@@ -31,9 +29,7 @@ y_test = pd.read_csv(os.path.join(PROCESSED_DIR, "y_test_fe.csv")).squeeze()
 
 print(f"✅ Loaded processed data for v2: {X_train.shape}, {X_test.shape}")
 
-# ===============================
-# Preprocessing (on processed X)
-# ===============================
+
 categorical_features = X_train.select_dtypes(include='object').columns.tolist()
 numerical_features = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
 
@@ -50,9 +46,8 @@ pipeline = Pipeline([
 X_train_pca = pipeline.fit_transform(X_train)
 X_test_pca = pipeline.transform(X_test)
 
-# ===============================
-# Models and parameter grids
-# ===============================
+
+
 models_params = {
     'logistic_v2': {
         'model': LogisticRegression(max_iter=1000, random_state=42),
@@ -76,9 +71,8 @@ models_params = {
     }
 }
 
-# ===============================
-# GridSearchCV and evaluation
-# ===============================
+
+
 for name, mp in models_params.items():
     print(f"Running GridSearchCV for {name}...")
     grid = GridSearchCV(mp['model'], mp['params'], cv=3, scoring='recall', n_jobs=-1)
