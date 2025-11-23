@@ -15,28 +15,19 @@ from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
 
-# ===============================
-# Paths (same style as v2)
-# ===============================
 PROCESSED_DIR = "data/processed"
 MODEL_DIR = "models"
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-# ===============================
-# Load processed train/test data
-# (already cleaned & preprocessed)
-# ===============================
+
 X_train = pd.read_csv(os.path.join(PROCESSED_DIR, "X_train_fe.csv"))
 X_test = pd.read_csv(os.path.join(PROCESSED_DIR, "X_test_fe.csv"))
 y_train = pd.read_csv(os.path.join(PROCESSED_DIR, "y_train_fe.csv")).squeeze()
 y_test = pd.read_csv(os.path.join(PROCESSED_DIR, "y_test_fe.csv")).squeeze()
-
 print(f"✅ Loaded processed data for v1: {X_train.shape}, {X_test.shape}")
 
-# ===============================
-# Preprocessing (on processed data)
-# ===============================
+
 # Identify categorical and numerical features from processed X
 categorical_features = X_train.select_dtypes(include='object').columns.tolist()
 numerical_features = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
@@ -48,9 +39,7 @@ preprocessor = ColumnTransformer(
     ]
 )
 
-# ===============================
-# Apply preprocessing and PCA
-# ===============================
+
 pipeline = Pipeline([
     ('preprocess', preprocessor),
     # keep n_components logic similar to before
@@ -60,9 +49,7 @@ pipeline = Pipeline([
 X_train_pca = pipeline.fit_transform(X_train)
 X_test_pca = pipeline.transform(X_test)
 
-# ===============================
-# Models dictionary
-# ===============================
+
 models = {
     'logistic_v1': LogisticRegression(random_state=42, max_iter=1000),
     'decision_tree_v1': DecisionTreeClassifier(random_state=42),
@@ -71,9 +58,7 @@ models = {
     'catboost_v1': CatBoostClassifier(verbose=False, random_state=42)
 }
 
-# ===============================
-# Train, evaluate and save models
-# ===============================
+
 for name, model in models.items():
     print(f"Training {name}...")
     model.fit(X_train_pca, y_train)
