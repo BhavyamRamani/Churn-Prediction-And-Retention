@@ -1,6 +1,6 @@
-# 🧠 Customer Churn Analysis
+# Customer Churn Analysis
 
-## 📋 Overview
+## Overview
 This project focuses on predicting **customer churn** — i.e., identifying customers who are likely to stop using a company’s service. The goal is to build a machine learning pipeline that preprocesses raw customer data, trains various models, and evaluates their performance using key classification metrics.
 
 The pipeline includes **data cleaning, encoding, scaling, feature engineering, model training, evaluation, and deployment preparation**. The final model can be used to identify at-risk customers and help the business improve retention strategies.
@@ -64,7 +64,7 @@ The dataset used in this project is the **Telco Customer Churn Dataset** from IB
 
 ---
 
-## 🧹 Data Preprocessing
+## Data Preprocessing
 All preprocessing steps are handled in **`src/preprocess.py`**:
 - Handle invalid or missing categories (e.g., `EDUCATION`, `MARRIAGE`)
 - Drop irrelevant features (like `customerID`)
@@ -119,7 +119,7 @@ This app:
 | CatBoost | 0.68 | 0.52 | 0.92 | 0.88 |
 
 **Key Insight:**  
-The **Logistic Regression** model achieved strong recall, making it ideal when false negatives (missed churns) are costly.
+The **Logistic Regression** model achieved strong recall, making it ideal when false negatives (missed churns) are costly. Other models such as Random Forest, SVM and Decision Tree was used but Logistic Regression and CatBoost showed better performnace.
 
 ---
 
@@ -135,4 +135,3 @@ The **Logistic Regression** model achieved strong recall, making it ideal when f
 **Bhavyam Ramani
 ````
 ---
-\
