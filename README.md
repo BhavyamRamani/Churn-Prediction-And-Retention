@@ -1,137 +1,133 @@
-# Customer Churn Analysis
+# Customer Churn Prediction and Retention Analysis
 
 ## Overview
-This project focuses on predicting **customer churn** — i.e., identifying customers who are likely to stop using a company’s service. The goal is to build a machine learning pipeline that preprocesses raw customer data, trains various models, and evaluates their performance using key classification metrics.
+This project focuses on analyzing and predicting customer churn using the Telco Customer Churn dataset. It implements an end-to-end data science pipeline covering data preprocessing, feature engineering, predictive modeling, explainability, clustering, survival analysis, and interactive Streamlit applications for churn prediction.
 
-The pipeline includes **data cleaning, encoding, scaling, feature engineering, model training, evaluation, and deployment preparation**. The final model can be used to identify at-risk customers and help the business improve retention strategies.
+The repository supports both experimentation through modular scripts and interactive exploration through deployed apps.
 
 ---
 
-# 📂 Project Structure
+## Dataset
+The project uses the **Telco Customer Churn dataset**, containing customer demographics, service usage, billing information, and churn labels.
+
+---
+
+## Project Structure
 ```
-churn-analysis/
-│
-├── data/
-│   ├── WA_Fn-UseC_-Telco-Customer-Churn.csv     # Original dataset
-│   ├── processed_data.csv                        # Cleaned dataset (after preprocessing)
+Churn-Prediction-And-Retention/
 │
 ├── src/
-│   ├── preprocess.py                             # Data preprocessing script
-│   ├── train.py                                  # Model training and evaluation script
-│   ├── utils.py                                  # Helper functions (if any)
+│   ├── data/
+│   │   ├── preprocess.py              # Data cleaning and preprocessing
+│   │   ├── feature_engineering.py     # Feature engineering logic
+│   │   ├── clustering.py              # Customer segmentation using clustering
+│   │   ├── survival_analysis.py       # Time-to-event churn analysis
+│   │   ├── shap_analysis.py            # SHAP-based explainability
+│   │   ├── model_selector.py           # Model selection utilities
+│   │   └── registry.py                # Model registry helpers
+│   │
+│   ├── models/
+│   │   ├── train_models_v1.py          # Baseline model training
+│   │   ├── train_models_v2.py          # Extended model training pipeline
+│   │   └── tune.py                     # Hyperparameter tuning
+│   │
+│   └── config/
+│       └── config.yaml                 # Configuration file
 │
-├── models/
-│   ├── logistic_regression.pkl                   # Saved model example
-│   ├── scaler.pkl                                # StandardScaler object
-│
-├── notebooks/
-│   ├── EDA.ipynb                                 # Exploratory Data Analysis notebook
-│
-├── app/
-│   ├── app_pca.py                                # Streamlit app for PCA & prediction
-│
-├── reports/
-│   ├── churn_report.pdf                          # Final report
-│   ├── figures/                                  # Graphs & plots (ROC, confusion matrix, etc.)
-│
-├── requirements.txt                              # Python dependencies
-├── README.md                                     # Project documentation (this file)
-└── LICENSE                                       # License information
+├── my_app.py                           # Streamlit app (Logistic Regression + PCA)
+├── catboost_app.py                    # Streamlit app (CatBoost model)
+├── models/                            # Saved trained models
+├── Screenshots/                       # App screenshots
+├── .dvc/                              # Data Version Control configuration
+├── Dockerfile                         # Docker setup
+├── requirements.txt
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-## 🧰 Tech Stack
-- **Language:** Python 3.10+
-- **Libraries:**  
-  `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `joblib`, `streamlit`
-- **Modeling:** Logistic Regression, Random Forest, CatBoost, etc.
-- **Visualization:** Matplotlib & Seaborn
-- **Deployment (optional):** Streamlit
+## Analysis Performed
+
+### Data Preprocessing
+- Cleaning and handling missing values
+- Encoding categorical variables
+- Scaling numerical features
+
+### Feature Engineering
+- Creation of derived features for modeling
+- Preparation of datasets for multiple analysis pipelines
+
+### Predictive Modeling
+- Training churn prediction models using:
+  - Logistic Regression
+  - CatBoost
+- Hyperparameter tuning and model comparison
+
+### Explainability
+- SHAP-based feature importance analysis to interpret model predictions
+
+### Customer Segmentation
+- Clustering techniques to identify groups of customers with similar behavior
+
+### Survival Analysis
+- Time-to-event analysis to study churn risk across customer lifetime
+- Generation of survival summaries
 
 ---
 
-## 📊 Dataset Description
-The dataset used in this project is the **Telco Customer Churn Dataset** from IBM Watson Analytics.
+## Streamlit Applications
 
-| Column | Description |
-|--------|--------------|
-| customerID | Unique ID for each customer |
-| gender, SeniorCitizen, Partner, Dependents | Demographic information |
-| tenure, MonthlyCharges, TotalCharges | Account & billing details |
-| PhoneService, InternetService, Contract, PaymentMethod | Service information |
-| Churn | Target variable (Yes = churned, No = retained) |
+### Logistic Regression + PCA App (`my_app.py`)
+- Interactive Streamlit application
+- Applies preprocessing, PCA, and Logistic Regression
+- Visualizes customers in reduced PCA space
+- Predicts churn probability for user-provided inputs
 
----
-
-## Data Preprocessing
-All preprocessing steps are handled in **`src/preprocess.py`**:
-- Handle invalid or missing categories (e.g., `EDUCATION`, `MARRIAGE`)
-- Drop irrelevant features (like `customerID`)
-- Encode categorical variables using **OneHotEncoder**
-- Scale continuous features using **StandardScaler**
-- Split the dataset into **train/test** sets
-
-Example:
+Run:
 ```bash
-python src/preprocess.py
+streamlit run my_app.py
 ```
 
-Output:
-```
-processed_data.csv saved to data/
+### CatBoost Churn Prediction App (`catboost_app.py`)
+- Streamlit application using CatBoostClassifier
+- Accepts customer inputs and predicts churn
+- Designed for interactive churn scoring
+
+Run:
+```bash
+streamlit run catboost_app.py
 ```
 
 ---
 
-## 🤖 Model Training
-The model training and evaluation logic is in **`src/train.py`**:
-- Loads preprocessed dataset  
-- Trains multiple models (Logistic Regression, Random Forest, etc.)
-- Evaluates performance using:
-  - Accuracy
-  - Precision
-  - Recall
-  - F1 Score
-  - ROC-AUC
-- Saves the trained model and scaler as `.pkl` files
-
-
-## 🎨 Visualization & PCA App
-The **Streamlit app** (`app/app_pca.py`) visualizes the dataset in PCA space and allows live predictions.
-
-Run locally:
-```
-streamlit run app/app_pca.py
-```
-
-This app:
-- Displays PCA-reduced data visualization  
-- Accepts user inputs for customer attributes  
-- Predicts churn probability using the saved model  
+## Docker Support
+A Dockerfile is included to containerize the project environment and ensure reproducibility.
 
 ---
 
-## 📈 Results Summary
-| Model | Accuracy | Recall | F1 Score | ROC-AUC |
-|--------|-----------|---------|-----------|-----------|
-| Logistic Regression | 0.75 | 0.71 | 0.82 | 0.85 |
-| CatBoost | 0.68 | 0.52 | 0.92 | 0.88 |
-
-**Key Insight:**  
-The **Logistic Regression** model achieved strong recall, making it ideal when false negatives (missed churns) are costly. Other models such as Random Forest, SVM and Decision Tree was used but Logistic Regression and CatBoost showed better performnace.
-
----
-
-## 🚀 Future Scope
-- Add **SHAP/Feature Importance** visualization for model interpretability  
-- Deploy as a **web dashboard** for marketing teams  
-- Automate data refresh and retraining with new data  
-- Integrate customer retention recommendations  
+## Tools and Technologies
+- Python
+- Pandas, NumPy
+- Scikit-learn
+- CatBoost
+- SHAP
+- Lifelines (survival analysis)
+- Streamlit
+- Docker
+- DVC
 
 ---
 
-## 👤 Author
-**Bhavyam Ramani
-````
+## Purpose
+This project provides a comprehensive analytical framework for customer churn analysis, combining predictive modeling with explainability, segmentation, survival insights, and interactive applications for practical use.
+
 ---
+
+## Author
+Bhavyam Ramani
+
+---
+
+## License
+This project is licensed under the MIT License.
